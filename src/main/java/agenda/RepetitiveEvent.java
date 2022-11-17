@@ -4,6 +4,8 @@ import java.util.*;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 
+import static java.time.LocalTime.now;
+
 /**
  * Description : A repetitive Event
  */
@@ -21,11 +23,11 @@ public class RepetitiveEvent extends Event {
      * <LI>ChronoUnit.MONTHS for monthly repetitions</LI>
      * </UL>
      */
-    private ChronoUnit frequency;
-    private ArrayList<LocalDate> datesException=new ArrayList<LocalDate>();
+    protected ChronoUnit frequency;
+    protected ArrayList<LocalDate> datesException=new ArrayList<LocalDate>();
     public RepetitiveEvent(String title, LocalDateTime start, Duration duration, ChronoUnit frequency) {
         super(title, start, duration);
-        this.frequency=frequency;
+        this.frequency = frequency;
     }
 
     /**
@@ -38,7 +40,14 @@ public class RepetitiveEvent extends Event {
     }
 
     public boolean isInDay(LocalDate aDay){
-        if (super.isInDay(aDay) && !datesException.contains(aDay)) return true;
+        if (!datesException.contains(aDay) && myStart.toLocalDate().compareTo(aDay)<=0) {
+            LocalDateTime startOccu=myStart;
+            while(startOccu.toLocalDate().compareTo(aDay)<=0){
+                startOccu=startOccu.plus(frequency.getDuration());
+            }
+            startOccu=startOccu.minus(frequency.getDuration());
+            if (startOccu.toLocalDate().compareTo(aDay)<=0 && startOccu.plus(myDuration).toLocalDate().compareTo(aDay)>=0) return true;
+        }
         return false;
     }
 

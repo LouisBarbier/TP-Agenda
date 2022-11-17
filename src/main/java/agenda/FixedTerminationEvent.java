@@ -29,8 +29,15 @@ public class FixedTerminationEvent extends RepetitiveEvent {
     private LocalDate terminationInclusive;
     private long numberOfOccurrences;
     public FixedTerminationEvent(String title, LocalDateTime start, Duration duration, ChronoUnit frequency, LocalDate terminationInclusive) {
-         super(title, start, duration, frequency);
+        super(title, start, duration, frequency);
         this.terminationInclusive=terminationInclusive;
+        LocalDateTime startOccu=myStart;
+        long nOccu=0;
+        while(startOccu.toLocalDate().compareTo(terminationInclusive)<=0){
+            startOccu=startOccu.plus(frequency.getDuration());
+            nOccu++;
+        }
+        this.numberOfOccurrences=nOccu;
     }
 
     /**
@@ -50,6 +57,11 @@ public class FixedTerminationEvent extends RepetitiveEvent {
     public FixedTerminationEvent(String title, LocalDateTime start, Duration duration, ChronoUnit frequency, long numberOfOccurrences) {
         super(title, start, duration, frequency);
         this.numberOfOccurrences=numberOfOccurrences;
+        LocalDateTime startOccu=myStart;
+        for(int i=1; i<numberOfOccurrences; i++){
+            startOccu=startOccu.plus(frequency.getDuration());
+        }
+        this.terminationInclusive=startOccu.toLocalDate();
     }
 
     /**
@@ -64,9 +76,20 @@ public class FixedTerminationEvent extends RepetitiveEvent {
         return numberOfOccurrences;
     }
 
-    public boolean isInDay(LocalDate aDay){
-        if (terminationInclusive==null && numberOfOccurrences!=null){
-
+    public boolean isInDay(LocalDate aDay) {
+        if (terminationInclusive.compareTo(aDay)>0 && myStart.toLocalDate().compareTo(aDay)<=0 && !datesException.contains(aDay)) {
+            LocalDateTime startOccu = myStart;
+            long nOccu = 1;
+            while (startOccu.toLocalDate().compareTo(aDay) <= 0 && nOccu != numberOfOccurrences) {
+                startOccu=startOccu.plus(frequency.getDuration());
+                nOccu++;
+            }
+            if (nOccu != numberOfOccurrences) {
+                startOccu=startOccu.minus(frequency.getDuration());
+                if (startOccu.toLocalDate().compareTo(aDay) <= 0 && startOccu.plus(myDuration).toLocalDate().compareTo(aDay) >= 0)
+                    return true;
+            }
         }
+        return false;
     }
 }
