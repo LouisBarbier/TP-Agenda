@@ -39,9 +39,9 @@ public class Event {
      * @param aDay the day to test
      * @return true if the event occurs on that day, false otherwise
      */
-    public boolean isInDay(LocalDate aDay) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+    public boolean isInDay(LocalDate aDay){
+        if (myStart.toLocalDate().compareTo(aDay)<=0 && myStart.plus(myDuration).toLocalDate().compareTo(aDay)>=0) return true;
+        return false;
     }
    
     /**
@@ -66,6 +66,8 @@ public class Event {
         return myDuration;
     }
 
-   
-    
+    @Override
+    public String toString() {
+        return "Nom de l'évènement : "+myTitle+", Date de début : "+myStart+", Durée : "+myDuration;
+    }
 }
